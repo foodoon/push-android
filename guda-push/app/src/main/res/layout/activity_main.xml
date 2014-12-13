@@ -1,0 +1,134 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity"
+    android:theme="@style/AppTheme"
+    android:textAlignment="center">
+
+    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:stretchColumns="1" >
+
+        <TableRow>
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="服务器host:"
+                android:textSize="16sp" >
+            </TextView>
+
+            <EditText android:id="@+id/server_host"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="请填写服务器host或者ip"
+                android:selectAllOnFocus="true" >
+            </EditText>
+        </TableRow>
+
+        <TableRow>
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="服务器端口:"
+                android:textSize="16sp" >
+            </TextView>
+
+            <EditText  android:id="@+id/server_port"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                />
+        </TableRow>
+
+        <TableRow >
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="本地使用端口:"
+                android:textSize="16sp"
+                ></TextView>
+            <EditText  android:id="@+id/client_port"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                />
+
+
+        </TableRow>
+        <TableRow>
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="连接方式:"
+                android:textSize="16sp"
+                ></TextView>
+            <RadioGroup android:id="@+id/conn_style"
+                android:orientation="horizontal"
+
+                >
+                <RadioButton android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="UDP"
+                    android:checked="true"/>
+                <RadioButton android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TCP"/>
+
+
+            </RadioGroup>
+        </TableRow>
+        <TableRow >
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="登录用户ID:"
+                android:textSize="16sp"
+                ></TextView>
+            <EditText  android:id="@+id/user_id"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="请填写整数"
+                />
+        </TableRow>
+        <Button  android:id="@+id/btn_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="登录"/>
+        <TableRow >
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="接收方用户ID:"
+                android:textSize="16sp"
+                ></TextView>
+            <EditText  android:id="@+id/target_user_id"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="请填写整数"
+                />
+        </TableRow>
+        <TableRow >
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="消息内容:"
+                android:textSize="16sp"
+                ></TextView>
+            <EditText  android:id="@+id/content"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="请填写文字"
+                />
+        </TableRow>
+
+        <Button  android:id="@+id/btn_send"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="发送"/>
+    </TableLayout>
+
+</RelativeLayout>
