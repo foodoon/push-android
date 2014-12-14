@@ -1,5 +1,6 @@
 package push.guda.android.guda_push.thread;
 
+import guda.push.connect.queue.AckTLV;
 import guda.push.connect.queue.WaitAckFactory;
 import guda.push.connect.protocol.api.Field;
 import guda.push.connect.protocol.codec.CodecUtil;
@@ -27,18 +28,31 @@ public class UdpRetryThread implements Runnable{
     public void run() {
         while(true) {
             try {
-                TLV tlv = WaitAckFactory.take();
-                if (tlv == null) {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            try {
+                AckTLV ackTLV = WaitAckFactory.poll();
+                if (ackTLV == null) {
                     try {
                         Thread.sleep(1 * 1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
+                TLV tlv = ackTLV.getTlv();
+                if(!ackTLV.needRetry()){
+                    long seq = CodecUtil.findTagLong(tlv, Field.SEQ);
+                    WaitAckFactory.add(seq,ackTLV.getTlv());
+                    continue;
+                }
                 //reset online info
+
                 long toUser = CodecUtil.findTagLong(tlv, Field.TO_USER);
                 HostInfo onlineInfo = OnlineInfo.findOnlineInfo(toUser);
                 if (onlineInfo == null) {
+
                     return;
                 }
                 TLV tagPort = CodecUtil.findTag(tlv, Field.TO_PORT);
@@ -55,15 +69,11 @@ public class UdpRetryThread implements Runnable{
                 sendSocket.send(sendPacket);
                 sendSocket.close();
                 long seq = CodecUtil.findTagLong(tlv, Field.SEQ);
-                WaitAckFactory.add(seq, tlv);
+                WaitAckFactory.add(seq,ackTLV.getTlv());
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+
 
         }
     }
