@@ -18,20 +18,19 @@ import java.net.InetAddress;
  */
 public class UdpRetryThread implements Runnable{
 
+    private volatile  boolean started = true;
     public UdpRetryThread(){
         Thread t =new Thread(this);
         t.setDaemon(true);
         t.start();
     }
+    public void stop(){
+        started = false;
+    }
 
     @Override
     public void run() {
-        while(true) {
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        while(started) {
             try {
                 AckTLV ackTLV = WaitAckFactory.poll();
                 if (ackTLV == null) {
@@ -41,18 +40,16 @@ public class UdpRetryThread implements Runnable{
                         e.printStackTrace();
                     }
                 }
-                TLV tlv = ackTLV.getTlv();
                 if(!ackTLV.needRetry()){
-                    long seq = CodecUtil.findTagLong(tlv, Field.SEQ);
+                    long seq = CodecUtil.findTagLong(ackTLV.getTlv(),Field.SEQ);
                     WaitAckFactory.add(seq,ackTLV.getTlv());
-                    continue;
+                    return;
                 }
+                TLV tlv = ackTLV.getTlv();
                 //reset online info
-
                 long toUser = CodecUtil.findTagLong(tlv, Field.TO_USER);
                 HostInfo onlineInfo = OnlineInfo.findOnlineInfo(toUser);
                 if (onlineInfo == null) {
-
                     return;
                 }
                 TLV tagPort = CodecUtil.findTag(tlv, Field.TO_PORT);
@@ -69,11 +66,15 @@ public class UdpRetryThread implements Runnable{
                 sendSocket.send(sendPacket);
                 sendSocket.close();
                 long seq = CodecUtil.findTagLong(tlv, Field.SEQ);
-                WaitAckFactory.add(seq,ackTLV.getTlv());
+                WaitAckFactory.add(seq, tlv);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
         }
     }

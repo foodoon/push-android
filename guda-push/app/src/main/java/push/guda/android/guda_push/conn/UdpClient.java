@@ -27,6 +27,12 @@ public abstract class UdpClient implements Runnable {
     protected long userId;
     protected int clientPort;
 
+    private volatile  boolean started = true;
+
+    public void stop(){
+        started = false;
+    }
+
     public DatagramSocket getDs() {
         return ds;
     }
@@ -135,29 +141,13 @@ public abstract class UdpClient implements Runnable {
     }
 
 
-//    public static void main(String[] args) throws Exception {
-//
-//        String serverHost = "127.0.0.1";
-//        int serverPort = 10085;
-//        UdpClient client = new UdpClient(serverHost, serverPort, 1L);
-//        TLV tlv = CodecUtil.newTlv(Struct.CHAT);
-//        tlv.add(new TLV(Field.CMD, TypeConvert.int2byte(Command.CHAT)));
-//        tlv.add(new TLV(Field.CHAT_CONTENT, TypeConvert.string2byte("test content")));
-//        tlv.add(new TLV(Field.FROM_USER, TypeConvert.long2byte(1L)));
-//        tlv.add(new TLV(Field.TO_USER, TypeConvert.long2byte(1L)));
-//        client.send(tlv.toBinary());
-//        while (true) {
-//            TLV info = client.receive();
-//
-//            Thread.sleep(1 * 1000);
-//        }
-//    }
+
 
      public abstract void onReceiverMsg(TLV tlv);
 
     @Override
     public void run() {
-        while (true) {
+        while (started) {
             try {
 
                     TLV info = receive();
@@ -192,6 +182,7 @@ public abstract class UdpClient implements Runnable {
                     TLV tlv = CodecUtil.newTlv(Struct.HEARBEAT);
                     tlv.add(new TLV(Field.CMD, TypeConvert.int2byte(Command.HEARBEAT)));
                     tlv.add(new TLV(Field.FROM_USER, TypeConvert.long2byte(userId)));
+                    tlv.add(new TLV(Field.FROM_PORT, TypeConvert.long2byte(clientPort)));
                     send(tlv.toBinary());
                 }catch(Exception e){
 

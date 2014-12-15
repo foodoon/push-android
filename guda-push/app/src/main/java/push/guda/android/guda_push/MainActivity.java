@@ -58,7 +58,7 @@ public class MainActivity extends ActionBarActivity {
         server_host.setText(account.getString(Params.SERVER_HOST, "192.168.1.103"));
         server_port = (EditText) findViewById(R.id.server_port);
         server_port.setText(account.getString(Params.SERVER_PORT, "10085"));
-        conn_style = (RadioGroup) findViewById(R.id.conn_style);
+        conn_style =  (RadioGroup)findViewById(R.id.conn_style);
         client_port = (EditText) findViewById(R.id.client_port);
         client_port.setText(account.getString(Params.CLIENT_PORT, "10085"));
         target_user_id = (EditText) findViewById(R.id.target_user_id);
@@ -102,25 +102,25 @@ public class MainActivity extends ActionBarActivity {
         int serverPort = getInt(account.getString(Params.SERVER_PORT, ""));
         long userId = getLong(account.getString(Params.USER_ID, ""));
         int port;
-        if (serverPort == 0) {
+        if(serverPort == 0){
             Toast.makeText(this.getApplicationContext(), "端口格式错误：" + serverPort, Toast.LENGTH_SHORT).show();
             return;
         }
         long targetUserId = 0;
         try {
-            targetUserId = Long.parseLong(target_user_id.getText().toString());
+            targetUserId  = Long.parseLong(target_user_id.getText().toString());
             if (targetUserId == 0) {
                 Toast.makeText(this.getApplicationContext(), "接收方用户应该是整数：" + serverPort, Toast.LENGTH_SHORT).show();
                 return;
             }
-        } catch (Exception e) {
+        }catch(Exception e) {
 
         }
-        if (userId == 0) {
+        if(userId ==0){
             Toast.makeText(this.getApplicationContext(), "接收方用户应该是整数：" + serverPort, Toast.LENGTH_SHORT).show();
             return;
         }
-        Thread t = new Thread(new sendTask(this, serverIp, serverPort, targetUserId, userId, txt_content));
+        Thread t = new Thread(new sendTask(this, serverIp, serverPort, targetUserId,userId,txt_content));
         t.start();
 
     }
@@ -133,7 +133,7 @@ public class MainActivity extends ActionBarActivity {
         private long userId;
         private String content;
 
-        public sendTask(Context context, String serverIp, int port, long targetUserId, long userId, String content) {
+        public sendTask(Context context, String serverIp, int port, long targetUserId,long userId,String content) {
             this.context = context;
             this.serverIp = serverIp;
             this.port = port;
@@ -159,14 +159,14 @@ public class MainActivity extends ActionBarActivity {
                         .getByName(serverIp), port);
                 ds.send(dp);
                 startSrv.putExtra("TEXT", "信息发送成功");
-                long seq = CodecUtil.findTagLong(tlv, Field.SEQ);
-                WaitAckFactory.add(seq, tlv);
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (ds != null) {
+                long seq = CodecUtil.findTagLong(tlv,Field.SEQ);
+                WaitAckFactory.add(seq,tlv);
+            }catch(Exception e){
+e.printStackTrace();
+            }finally{
+                if(ds!=null){
                     try {
-                        ds.close();
+                    ds.close();
                     } catch (Exception e) {
                     }
                 }
@@ -218,7 +218,7 @@ public class MainActivity extends ActionBarActivity {
         Intent startSrv = new Intent(this, CmdService.class);
         startSrv.putExtra("CMD", "RESET");
         this.startService(startSrv);
-        // freshCurrentInfo();
+       // freshCurrentInfo();
     }
 
     protected void saveAccountInfo() {
@@ -234,19 +234,19 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
-    private int getInt(String str) {
-        try {
+    private int getInt(String str){
+        try{
             return Integer.parseInt(str);
-        } catch (Exception e) {
+        }catch (Exception e){
 
         }
         return 0;
     }
 
-    private long getLong(String str) {
-        try {
+    private long getLong(String str){
+        try{
             return Long.parseLong(str);
-        } catch (Exception e) {
+        }catch (Exception e){
 
         }
         return 0;
