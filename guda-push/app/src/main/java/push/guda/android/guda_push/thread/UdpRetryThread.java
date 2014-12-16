@@ -34,11 +34,8 @@ public class UdpRetryThread implements Runnable{
             try {
                 AckTLV ackTLV = WaitAckFactory.poll();
                 if (ackTLV == null) {
-                    try {
-                        Thread.sleep(1 * 1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    return;
+
                 }
                 if(!ackTLV.needRetry()){
                     long seq = CodecUtil.findTagLong(ackTLV.getTlv(),Field.SEQ);

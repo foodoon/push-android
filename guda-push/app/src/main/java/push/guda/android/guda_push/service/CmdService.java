@@ -25,6 +25,7 @@ import push.guda.android.guda_push.Params;
 import push.guda.android.guda_push.R;
 import push.guda.android.guda_push.conn.UdpClient;
 import push.guda.android.guda_push.conn.UdpServer;
+import push.guda.android.guda_push.listener.ReceiveMsgListener;
 import push.guda.android.guda_push.receiver.TickAlarmReceiver;
 
 /**
@@ -102,32 +103,6 @@ public class CmdService extends Service {
         alarmMgr.cancel(tickPendIntent);
     }
 
-    public class UdpClientImpl extends UdpClient{
-        public UdpClientImpl(final String host, final int port, long userId,int clientPort) throws Exception {
-
-            ds = new DatagramSocket(clientPort);
-            this.host = host;
-            this.port = port;
-            this.userId = userId;
-//            / new Hearbeat();
-        }
-        @Override
-        public void onReceiverMsg(TLV tlv) {
-            if(tlv == null){
-                return;
-            }
-            int command = CodecUtil.findTagInt(tlv, Field.CMD);
-            if(command == Command.ACK){
-                long seq = CodecUtil.findTagLong(tlv, Field.SEQ);
-                WaitAckFactory.remove(seq);
-                return;
-            }
-            String content = CodecUtil.findTagString(tlv, Field.CHAT_CONTENT);
-            long user =  CodecUtil.findTagLong(tlv, Field.FROM_USER);
-            notifyUser(1, "new msg", content, "from:[" + user+"]");
-            ack(CodecUtil.newACK(tlv));
-        }
-    }
 
     private void ack(TLV tlv) {
         try {
@@ -159,10 +134,29 @@ public class CmdService extends Service {
             }
         }
         try {
-            udpServer = new UdpServer(wakeLock,serverIp,serverPort,userId);
+            udpServer = new UdpServer(wakeLock,serverIp,serverPort,userId,clientPort);
+            udpServer.setReceiveMsgListener(new ReceiveMsgListener() {
+                @Override
+                public void onReceive(TLV tlv) {
+                    if(tlv == null){
+                        return;
+                    }
+                    int command = CodecUtil.findTagInt(tlv, Field.CMD);
+                    if(command == Command.ACK){
+                        long seq = CodecUtil.findTagLong(tlv, Field.SEQ);
+                        WaitAckFactory.remove(seq);
+                        return;
+                    }
+                    String content = CodecUtil.findTagString(tlv, Field.CHAT_CONTENT);
+                    long user =  CodecUtil.findTagLong(tlv, Field.FROM_USER);
+                    notifyUser(1, "new msg", content, "from:[" + user+"]");
+                    ack(CodecUtil.newACK(tlv));
+                }
+            });
             Thread thread = new Thread(udpServer);
             thread.setDaemon(true);
             thread.start();
+            udpServer.new Hearbeat();
             Toast.makeText(this.getApplicationContext(), "终端重置", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
             e.printStackTrace();
